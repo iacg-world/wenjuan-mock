@@ -1,6 +1,8 @@
 const Mock = require('mockjs')
 const getQuestionList = require('./data/getQuestionList')
 const getComponentList = require('./data/getComponentList')
+const axios = require('axios');
+const backgroundApi='https://api.btstu.cn/sjbz/api.php?lx=dongman&format=json&method=mobile'
 
 const Random = Mock.Random
 
@@ -9,22 +11,34 @@ module.exports = [
         // 获取单个问卷信息
         url: '/api/question/:id',
         method: 'get',
-        response() {
-            return {
-                errno: 0,
-                data: {
-                    id: Random.id(),
-                    title: Random.ctitle(),
-                    desc: '问卷描述',
-                    js: '',
-                    css: '',
-                    isDeleted: false,
-                    isPublished: true,
-                    componentList: getComponentList()
+        async response() {
+            try {
+                const res = await axios.get(backgroundApi, {
+                    headers: {'Content-Type': 'axios'},
+                    
+                })
+                return {
+                    errno: 0,
+                    data: {
+                        id: Random.id(),
+                        title: Random.ctitle(),
+                        background: res.data.imgurl,
+                        desc: '问卷描述',
+                        js: '',
+                        css: '',
+                        isDeleted: false,
+                        isPublished: true,
+                        componentList: getComponentList()
+                    }
+    
+                    // errno: 1002,
+                    // msg: '错误测试'
                 }
-
-                // errno: 1002,
-                // msg: '错误测试'
+            } catch (error) {
+                return {
+                    errno: 1002,
+                    msg: error
+                }
             }
         }
     },
